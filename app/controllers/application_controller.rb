@@ -6,9 +6,14 @@ class ApplicationController < ActionController::Base
   def current_user
     # fetches the user we've logged in as
     return nil if self.session[:session_token].nil?
-    User.find_by(session_token: self.session[:session_token])
+    @current_user ||= User.includes(:out_follows).find_by(session_token: self.session[:session_token])
   end
-  helper_method :current_user
+
+  def current_user_follows
+    @follows ||= current_user.out_follows.pluck("followee_id")
+  end
+  
+  helper_method :current_user, :current_user_follows
 
   def log_in!(user)
     # force other clients to log out by regenerating token
