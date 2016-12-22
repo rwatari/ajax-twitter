@@ -7,6 +7,8 @@ class TweetCompose {
     this.$counter = $el.find('.chars-left');
     this.submitHandler();
     this.textHandler();
+    this.addMentionHandler();
+    this.removeMentionHandler();
   }
 
   submitHandler() {
@@ -28,30 +30,35 @@ class TweetCompose {
   clearInput() {
     this.$el.find("select").val("");
     this.$el.find("textarea").val("");
+    this.$counter.text(140);
     this.$el.find(":input").attr("disabled", false);
   }
 
   handleSuccess(res) {
-
-    let id_selector = this.$el.data("tweets-ul");
-    let $feed_ul = $(id_selector);
+    let idSelector = this.$el.data("tweets-ul");
+    let $feedUl = $(idSelector);
     let $li = $('<li>');
     $li.append(`${res.content} -- `);
     $li.append(`<a href="/users/${res.user.id}">${res.user.username}</a> -- `);
     $li.append(res.created_at);
+
     if (res.mentions.length > 0) {
-      let $ul_mention = $('<ul>');
-      res.mentions.forEach( (cat) => {
-        let $li_mention = $('<li>');
-        $li_mention.append(`<a href="/users/${cat.user_id}">${cat.user.username}</a>`);
-        $ul_mention.append($li_mention);
-      });
-      $li.append($ul_mention);
+      this.addMentions($li, res.mentions);
     }
-    $feed_ul.prepend($li);
+    $feedUl.prepend($li);
 
     this.clearInput();
 
+  }
+
+  addMentions($li, mentions) {
+    let $ulMention = $('<ul>');
+    mentions.forEach( (cat) => {
+      let $liMention = $('<li>');
+      $liMention.append(`<a href="/users/${cat.user_id}">${cat.user.username}</a>`);
+      $ulMention.append($liMention);
+    });
+    $li.append($ulMention);
   }
 
   textHandler() {
@@ -60,7 +67,20 @@ class TweetCompose {
     });
   }
 
+  addMentionHandler() {
+    $(".add-mentioned-user").on("click", (e) => {
+      const $selectScript = this.$el.find(".dynamic-mention-select");
+      $("div.mentioned_users").append($selectScript.html());
+      return false;
+    });
+  }
 
+  removeMentionHandler() {
+    $("div.mentioned_users").on("click", "a.remove-mentioned-user", (e) => {
+      $(e.currentTarget).parent().remove();
+      return false;
+    });
+  }
 }
 
 module.exports = TweetCompose;
