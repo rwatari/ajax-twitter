@@ -33,6 +33,20 @@ const APIUtil = {
       data: tweetData,
       dataType: 'json'
     });
+  },
+
+  insertTweets: function(maxCreatedAt) {
+    let queryData;
+
+    if (maxCreatedAt !== null) {
+      queryData = { max_created_at: maxCreatedAt };
+    }
+    return $.ajax({
+      method: "GET",
+      url: "/feed",
+      data: queryData,
+      dataType: 'json'
+    });
   }
 
 };

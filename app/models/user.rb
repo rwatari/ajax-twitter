@@ -49,7 +49,16 @@ class User < ActiveRecord::Base
       .order("tweets.created_at DESC")
       .uniq
 
+
     # TODO: How can we use limit/max_created_at here??
+    if max_created_at
+      @tweets = @tweets.where("tweets.created_at < :timestamp", timestamp: max_created_at)
+    end
+
+    if limit
+      @tweets = @tweets.limit(limit)
+    end
+
 
     @tweets
   end

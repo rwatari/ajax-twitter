@@ -28,37 +28,18 @@ class TweetCompose {
   }
 
   clearInput() {
-    this.$el.find("select").val("");
     this.$el.find("textarea").val("");
     this.$counter.text(140);
+    this.$el.find('div.mentioned_users').empty();
     this.$el.find(":input").attr("disabled", false);
   }
 
   handleSuccess(res) {
     let idSelector = this.$el.data("tweets-ul");
     let $feedUl = $(idSelector);
-    let $li = $('<li>');
-    $li.append(`${res.content} -- `);
-    $li.append(`<a href="/users/${res.user.id}">${res.user.username}</a> -- `);
-    $li.append(res.created_at);
-
-    if (res.mentions.length > 0) {
-      this.addMentions($li, res.mentions);
-    }
-    $feedUl.prepend($li);
-
+    $feedUl.trigger("insert-tweet", res);
     this.clearInput();
 
-  }
-
-  addMentions($li, mentions) {
-    let $ulMention = $('<ul>');
-    mentions.forEach( (cat) => {
-      let $liMention = $('<li>');
-      $liMention.append(`<a href="/users/${cat.user_id}">${cat.user.username}</a>`);
-      $ulMention.append($liMention);
-    });
-    $li.append($ulMention);
   }
 
   textHandler() {
